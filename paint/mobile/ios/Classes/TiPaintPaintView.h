@@ -14,6 +14,9 @@
 	CGFloat strokeAlpha;
 	CGColorRef strokeColor;
 	bool erase;
+	bool useBezierCorrection;
+	NSMutableArray *pointsArray;
+	UIImage *cleanImage;
 }
 
 @end

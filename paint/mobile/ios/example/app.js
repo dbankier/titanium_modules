@@ -5,7 +5,8 @@ var paintView = Ti.Paint.createPaintView({
     top:0, right:0, bottom:80, left:0,
     // strokeWidth (float), strokeColor (string), strokeAlpha (int, 0-255)
     strokeColor:'#0f0', strokeAlpha:255, strokeWidth:10,
-    eraseMode:false
+    eraseMode:false,
+    image: 'Default.png'
 });
 win.add(paintView);
 
@@ -43,6 +44,13 @@ buttonStrokeColorEraser.addEventListener('click', function(e) {
 	e.source.title = (paintView.eraseMode) ? 'Erase : On' : 'Erase : Off';
 });
 win.add(buttonStrokeColorEraser);
+
+var buttonBezier = Ti.UI.createButton({ bottom:70, left:100, width:100, height:30, title:'Bezier : Off' });
+buttonBezier.addEventListener('click', function(e) {
+	paintView.useBezierCorrection = (paintView.useBezierCorrection) ? false : true;
+	e.source.title = (paintView.useBezierCorrection) ? 'Bezier : On' : 'Bezier : Off';
+});
+win.add(buttonBezier);
 
 win.open();
 
