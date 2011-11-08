@@ -19,6 +19,7 @@
 	if ((self = [super init]))
 	{
 		useBezierCorrection = false;
+		straightLineMode = false;
 		strokeWidth = 5;
         strokeAlpha = 1;
 		strokeColor = CGColorRetain([[TiUtils colorValue:@"#000"] _color].CGColor);
@@ -60,8 +61,12 @@
     CGContextSetAlpha(UIGraphicsGetCurrentContext(), strokeAlpha);
     CGContextSetStrokeColorWithColor(UIGraphicsGetCurrentContext(), strokeColor);
     CGContextBeginPath(UIGraphicsGetCurrentContext());
-    CGContextMoveToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
-    CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), currentPoint.x, currentPoint.y);
+	CGPoint start = lastPoint;
+	if (straightLineMode) {
+		start = [(NSValue*)[pointsArray objectAtIndex:0] CGPointValue];
+	}
+	CGContextMoveToPoint(UIGraphicsGetCurrentContext(), start.x, start.y);
+	CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), currentPoint.x, currentPoint.y);
 }
 
 - (void)drawEraserLine:(CGPoint)currentPoint
@@ -98,7 +103,11 @@
 {
 	UIView *view = [self imageView];
 	UIGraphicsBeginImageContext(view.frame.size);
-	[drawImage.image drawInRect:CGRectMake(0, 0, view.frame.size.width, view.frame.size.height)];
+	UIImage *targetImage = drawImage.image;
+	if (straightLineMode && !erase){
+		targetImage = cleanImage;
+	}
+	[targetImage drawInRect:CGRectMake(0, 0, view.frame.size.width, view.frame.size.height)];
     if (erase) {
         [self drawEraserLine:currentPoint];
     }
@@ -145,7 +154,7 @@
 	[pointsArray addObject:[NSValue valueWithCGPoint:currentPoint]];
 	
 	// Only smooth if there are more than 4 points (since we double up at start and end)
-	if (!erase && useBezierCorrection && [pointsArray count]>4) {
+	if (!erase && !straightLineMode && useBezierCorrection && [pointsArray count]>4) {
 		[self drawBezier];
 	}
 	[pointsArray release];
@@ -247,6 +256,11 @@
 - (void)setEraseMode_:(id)value
 {
 	erase = [TiUtils boolValue:value];
+}
+
+- (void)setStraightLineMode_:(id)value
+{
+	straightLineMode = [TiUtils boolValue:value];
 }
 
 - (void)setStrokeWidth_:(id)width

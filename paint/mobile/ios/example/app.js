@@ -52,5 +52,12 @@ buttonBezier.addEventListener('click', function(e) {
 });
 win.add(buttonBezier);
 
+var buttonStraight = Ti.UI.createButton({ bottom:100, left:100, width:100, height:30, title:'Straight : Off' });
+buttonStraight.addEventListener('click', function(e) {
+	paintView.straightLineMode = (paintView.straightLineMode) ? false : true;
+	e.source.title = (paintView.straightLineMode) ? 'Straight : On' : 'Straight : Off';
+});
+win.add(buttonStraight);
+
 win.open();
 

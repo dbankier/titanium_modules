@@ -15,6 +15,7 @@
 	CGColorRef strokeColor;
 	bool erase;
 	bool useBezierCorrection;
+	bool straightLineMode;
 	NSMutableArray *pointsArray;
 	UIImage *cleanImage;
 }
