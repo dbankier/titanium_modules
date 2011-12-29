@@ -158,12 +158,13 @@
         CGPathAddLineToPoint(path,NULL,x2,y2);
         
         double width;
-        if (len2 < 10 || !strokeDynamic) {
+        double len = (len1+len2)/2; //smoother transition
+        if (len < 10 || !strokeDynamic) {
             width = strokeWidth;
-        } else if (len2 > 50) {
+        } else if (len > 50) {
             width = strokeWidth * 0.7;
         } else {
-            width = strokeWidth * (1 - ((len2 -10)/40 * 0.3));
+            width = strokeWidth * (1 - ((len -10)/40 * 0.3));
         }
         CGContextSetLineWidth(UIGraphicsGetCurrentContext(), width);
     }
