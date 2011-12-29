@@ -68,7 +68,7 @@ buttonSquare.addEventListener('click', function(e) {
 });
 win.add(buttonSquare);
 
-var buttonDynamic = Ti.UI.createButton({ bottom:130, right:10, width:100, height:30, title:'Dynamic: Off' });
+var buttonDynamic = Ti.UI.createButton({ bottom:130, left:10, width:100, height:30, title:'Dynamic: Off' });
 buttonDynamic.addEventListener('click', function(e) {
 	paintView.strokeDynamic = !paintView.strokeDynamic;
     buttonDynamic.title = 'Dynamic: ' + (paintView.strokeDynamic? "On" : "Off");
