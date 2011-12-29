@@ -22,7 +22,7 @@
 // this is generated for your module, please do not change it
 -(NSString*)moduleId
 {
-	return @"ti.paint";
+	return @"ti.paint++";
 }
 
 #pragma mark Lifecycle
@@ -61,6 +61,31 @@
 	// optionally release any resources that can be dynamically
 	// reloaded once memory is available - such as caches
 	[super didReceiveMemoryWarning:notification];
+}
+
+-(NSInteger)ERASE
+{
+	return DrawModeErase;
+}
+
+-(NSInteger)STRAIGHT_LINE
+{
+	return DrawModeStraightLine;
+}
+
+-(NSInteger)CURVE_LINE
+{
+	return DrawModeCurve;
+}
+
+-(NSInteger)CIRCLE
+{
+	return DrawModeCircle;
+}
+
+-(NSInteger)RECTANGLE
+{
+	return DrawModeRectangle;
 }
 
 @end

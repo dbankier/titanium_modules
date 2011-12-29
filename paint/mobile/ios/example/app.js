@@ -38,26 +38,43 @@ buttonStrokeAlpha.addEventListener('click', function(e) {
 });
 win.add(buttonStrokeAlpha);
 
-var buttonStrokeColorEraser = Ti.UI.createButton({ bottom:40, right:10, width:100, height:30, title:'Erase : Off' });
+var buttonStrokeColorEraser = Ti.UI.createButton({ bottom:40, right:10, width:100, height:30, title:'Erase' });
 buttonStrokeColorEraser.addEventListener('click', function(e) {
-	paintView.eraseMode = (paintView.eraseMode) ? false : true;
-	e.source.title = (paintView.eraseMode) ? 'Erase : On' : 'Erase : Off';
+	paintView.drawMode = Ti.Paint.ERASE;
 });
 win.add(buttonStrokeColorEraser);
 
-var buttonBezier = Ti.UI.createButton({ bottom:70, left:100, width:100, height:30, title:'Bezier : Off' });
+var buttonBezier = Ti.UI.createButton({ bottom:70, left:100, width:100, height:30, title:'Bezier' });
 buttonBezier.addEventListener('click', function(e) {
-	paintView.useBezierCorrection = (paintView.useBezierCorrection) ? false : true;
-	e.source.title = (paintView.useBezierCorrection) ? 'Bezier : On' : 'Bezier : Off';
+	paintView.drawMode = Ti.Paint.CURVE_LINE;
 });
 win.add(buttonBezier);
 
-var buttonStraight = Ti.UI.createButton({ bottom:100, left:100, width:100, height:30, title:'Straight : Off' });
+var buttonStraight = Ti.UI.createButton({ bottom:100, left:100, width:100, height:30, title:'Straight' });
 buttonStraight.addEventListener('click', function(e) {
-	paintView.straightLineMode = (paintView.straightLineMode) ? false : true;
-	e.source.title = (paintView.straightLineMode) ? 'Straight : On' : 'Straight : Off';
+	paintView.drawMode = Ti.Paint.STRAIGHT_LINE;
 });
 win.add(buttonStraight);
+
+var buttonCircle = Ti.UI.createButton({ bottom:100, right:10, width:100, height:30, title:'Circle' });
+buttonCircle.addEventListener('click', function(e) {
+	paintView.drawMode = Ti.Paint.CIRCLE;
+});
+win.add(buttonCircle);
+
+var buttonSquare = Ti.UI.createButton({ bottom:130, right:10, width:100, height:30, title:'Rectangle' });
+buttonSquare.addEventListener('click', function(e) {
+	paintView.drawMode = Ti.Paint.RECTANGLE;
+});
+win.add(buttonSquare);
+
+var buttonDynamic = Ti.UI.createButton({ bottom:130, right:10, width:100, height:30, title:'Dynamic: Off' });
+buttonDynamic.addEventListener('click', function(e) {
+	paintView.strokeDynamic = !paintView.strokeDynamic;
+    buttonDynamic.title = 'Dynamic: ' + (paintView.strokeDynamic? "On" : "Off");
+});
+win.add(buttonDynamic);
+
 
 win.open();
 
