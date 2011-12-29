@@ -157,16 +157,33 @@
         CGPathAddCurveToPoint(path,NULL,ctrl1_x,ctrl1_y,ctrl2_x,ctrl2_y, x2,y2);
         CGPathAddLineToPoint(path,NULL,x2,y2);
         
-        double width;
-        double len = (len1+len2)/2; //smoother transition
-        if (len < 10 || !strokeDynamic) {
-            width = strokeWidth;
-        } else if (len > 50) {
-            width = strokeWidth * 0.7;
-        } else {
-            width = strokeWidth * (1 - ((len -10)/40 * 0.3));
+
+        double step_limit = 0.4; // limit for dynamic width step
+        double width_limit = 0.7; // smallest percentage change in width
+        
+        double width = strokeWidth * (1 - ((len1 -10)/40 * (1-width_limit)));
+        NSLog(@"width: %f", width);
+        if (lastWidth > -1) {
+            if (abs(width - lastWidth) > step_limit) {
+                if (width > lastWidth) {
+                    width = lastWidth + step_limit;
+                } else {
+                    width = lastWidth -step_limit;
+                }
+            }
         }
+
+        
+        if (width > strokeWidth || !strokeDynamic) {
+            width = strokeWidth;
+        } else if (width < strokeWidth * width_limit) {
+            width = strokeWidth * width_limit;
+        }
+        
+        NSLog(@"%f vs %f", strokeWidth, width);
+        
         CGContextSetLineWidth(UIGraphicsGetCurrentContext(), width);
+        lastWidth = width;
     }
    
 	CGContextAddPath(UIGraphicsGetCurrentContext(), path);
@@ -207,6 +224,7 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
+    lastWidth = -1;
 	[super touchesBegan:touches withEvent:event];
 	cleanImage = [self.imageView.image retain];
 	

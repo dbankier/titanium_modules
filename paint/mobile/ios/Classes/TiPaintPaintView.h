@@ -17,6 +17,8 @@
 	CGFloat strokeAlpha;
 	CGColorRef strokeColor;
     bool strokeDynamic;
+    double lastWidth;
+    
 	DrawModeSelection drawMode;
 	NSMutableArray *pointsArray;
     //NSMutableArray *imageHistory;
