@@ -159,7 +159,7 @@
         
 
         double step_limit = 0.4; // limit for dynamic width step
-        double width_limit = 0.7; // smallest percentage change in width
+        double width_limit = 0.6; // smallest percentage change in width
         
         double width = strokeWidth * (1 - ((len1 -10)/40 * (1-width_limit)));
         if (lastWidth > -1) {
@@ -180,8 +180,12 @@
         
         CGContextSetLineWidth(UIGraphicsGetCurrentContext(), width);
         lastWidth = width;
+        
+        //optimising from http://blog.effectiveui.com/?p=8105
+        CGRect dirtyPoint1 = CGRectMake(x1-10, y1-10, 20, 20);
+        CGRect dirtyPoint2 = CGRectMake(x2-10, y2-10, 20, 20);
+        [self setNeedsDisplayInRect:CGRectUnion(dirtyPoint1, dirtyPoint2)];
     }
-   
 	CGContextAddPath(UIGraphicsGetCurrentContext(), path);
 	CGContextSetShouldAntialias(UIGraphicsGetCurrentContext(),YES);
 }	
