@@ -162,7 +162,6 @@
         double width_limit = 0.7; // smallest percentage change in width
         
         double width = strokeWidth * (1 - ((len1 -10)/40 * (1-width_limit)));
-        NSLog(@"width: %f", width);
         if (lastWidth > -1) {
             if (abs(width - lastWidth) > step_limit) {
                 if (width > lastWidth) {
@@ -172,15 +171,12 @@
                 }
             }
         }
-
         
         if (width > strokeWidth || !strokeDynamic) {
             width = strokeWidth;
         } else if (width < strokeWidth * width_limit) {
             width = strokeWidth * width_limit;
         }
-        
-        NSLog(@"%f vs %f", strokeWidth, width);
         
         CGContextSetLineWidth(UIGraphicsGetCurrentContext(), width);
         lastWidth = width;
