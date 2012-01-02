@@ -17,12 +17,14 @@
 	CGFloat strokeAlpha;
 	CGColorRef strokeColor;
     bool strokeDynamic;
+    bool blurredEdges;
+    
     double lastWidth;
     
 	DrawModeSelection drawMode;
 	NSMutableArray *pointsArray;
-    //NSMutableArray *imageHistory;
-	UIImage *cleanImage;
+    NSMutableArray *imageHistory;
+    
 }
 
 @end

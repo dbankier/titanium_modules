@@ -75,6 +75,19 @@ buttonDynamic.addEventListener('click', function(e) {
 });
 win.add(buttonDynamic);
 
+var buttonBlur = Ti.UI.createButton({ bottom:160, left:10, width:100, height:30, title:'Blurred: Off' });
+buttonBlur.addEventListener('click', function(e) {
+	paintView.blurredEdges = !paintView.blurredEdges;
+    buttonBlur.title = 'Blurred: ' + (paintView.blurredEdges? "On" : "Off");
+});
+win.add(buttonBlur);
+
+var buttonUndo = Ti.UI.createButton({ bottom:190, left:10, width:60, height:30, title:'Undo' });
+buttonUndo.addEventListener('click', function(e) {
+	paintView.undo();
+});
+win.add(buttonUndo);
+
 
 win.open();
 

@@ -18,13 +18,16 @@
 		strokeWidth = 5;
         strokeAlpha = 1;
         strokeDynamic = false;
+        blurredEdges = false;
 		strokeColor = CGColorRetain([[TiUtils colorValue:@"#000"] _color].CGColor);
+        imageHistory = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
 
 - (void)dealloc
 {
+    [imageHistory release];
 	RELEASE_TO_NIL(drawImage);
 	CGColorRelease(strokeColor);
 	[super dealloc];
@@ -102,6 +105,7 @@
     }
 }
 - (void)drawBezierCurve {
+    
     CGContextBeginPath(UIGraphicsGetCurrentContext());
     CGFloat x0,y0,x1,y1,x2,y2,x3,y3;
     CGMutablePathRef path = CGPathCreateMutable();
@@ -157,7 +161,7 @@
         CGPathAddCurveToPoint(path,NULL,ctrl1_x,ctrl1_y,ctrl2_x,ctrl2_y, x2,y2);
         CGPathAddLineToPoint(path,NULL,x2,y2);
         
-
+        
         double step_limit = 0.4; // limit for dynamic width step
         double width_limit = 0.6; // smallest percentage change in width
         
@@ -180,23 +184,23 @@
         
         CGContextSetLineWidth(UIGraphicsGetCurrentContext(), width);
         lastWidth = width;
-        
-        //optimising from http://blog.effectiveui.com/?p=8105
-        CGRect dirtyPoint1 = CGRectMake(x1-10, y1-10, 20, 20);
-        CGRect dirtyPoint2 = CGRectMake(x2-10, y2-10, 20, 20);
-        [self setNeedsDisplayInRect:CGRectUnion(dirtyPoint1, dirtyPoint2)];
+        if (blurredEdges) {
+            CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0, 0.0), 2.0, strokeColor);
+        }
+        lastWidth = width;
+
     }
 	CGContextAddPath(UIGraphicsGetCurrentContext(), path);
-	CGContextSetShouldAntialias(UIGraphicsGetCurrentContext(),YES);
+	CGContextSetShouldAntialias(UIGraphicsGetCurrentContext(),YES); 
 }	
 
-- (void)drawAt:(CGPoint)currentPoint
+- (void)drawAt:(CGPoint)currentPoint endDraw:(bool)endDraw
 {
 	UIView *view = [self imageView];
 	UIGraphicsBeginImageContext(view.frame.size);
 	UIImage *targetImage = drawImage.image;
 	if (drawMode == DrawModeStraightLine || drawMode == DrawModeCircle || drawMode == DrawModeRectangle){
-		targetImage = cleanImage;
+		targetImage = [imageHistory objectAtIndex:[imageHistory count] -1];
 	}
 	[targetImage drawInRect:CGRectMake(0, 0, view.frame.size.width, view.frame.size.height)];
     if (drawMode == DrawModeErase) {
@@ -206,7 +210,8 @@
         CGContextSetLineWidth(UIGraphicsGetCurrentContext(), strokeWidth);
         CGContextSetAlpha(UIGraphicsGetCurrentContext(), strokeAlpha);
         CGContextSetStrokeColorWithColor(UIGraphicsGetCurrentContext(), strokeColor);
-        if (drawMode == DrawModeCurve && [pointsArray count] > 3) {
+        
+        if (drawMode == DrawModeCurve && (!endDraw || [pointsArray count] > 3)) {
             [self drawBezierCurve];
         } else if (drawMode == DrawModeCircle) {
             [self drawCircle:currentPoint];
@@ -226,12 +231,12 @@
 {
     lastWidth = -1;
 	[super touchesBegan:touches withEvent:event];
-	cleanImage = [self.imageView.image retain];
+	[imageHistory addObject:[self.imageView.image retain]];
 	
 	UITouch *touch = [touches anyObject];
 	lastPoint = [touch locationInView:[self imageView]];
 	pointsArray = [[NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:lastPoint]] retain];
-	[self drawAt:lastPoint];
+	[self drawAt:lastPoint endDraw:false];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -240,8 +245,8 @@
 	
 	UITouch *touch = [touches anyObject];	
 	CGPoint currentPoint = [touch locationInView:[self imageView]];
-	[self drawAt:currentPoint];
 	[pointsArray addObject:[NSValue valueWithCGPoint:currentPoint]];
+    [self drawAt:currentPoint endDraw:false];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -249,10 +254,9 @@
 	[super touchesEnded:touches withEvent:event];
 	UITouch *touch = [touches anyObject];	
 	CGPoint currentPoint = [touch locationInView:[self imageView]];
-	[self drawAt:currentPoint];
-
+	[self drawAt:currentPoint endDraw:true];
 	[pointsArray release];
-	[cleanImage release];
+	
 }
 
 
@@ -275,6 +279,11 @@
 - (void)setStrokeDynamic_:(id)value
 {
     strokeDynamic = [TiUtils boolValue:value];
+}
+
+- (void) setBlurredEdges_: (id)value
+{
+    blurredEdges = [TiUtils boolValue:value];
 }
 
 - (void)setStrokeColor_:(id)value
@@ -300,6 +309,15 @@
 	else
 	{
 		self.imageView.image=nil;
+	}
+}
+
+- (void)undo:(id)args
+{
+    if ([imageHistory count] > 0)
+	{
+		self.imageView.image = [imageHistory objectAtIndex:[imageHistory count] -1];
+        [imageHistory removeObjectAtIndex:[imageHistory count] -1];
 	}
 }
 
