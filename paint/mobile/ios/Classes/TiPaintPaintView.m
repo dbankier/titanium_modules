@@ -200,7 +200,11 @@
 	UIGraphicsBeginImageContext(view.frame.size);
 	UIImage *targetImage = drawImage.image;
 	if (drawMode == DrawModeStraightLine || drawMode == DrawModeCircle || drawMode == DrawModeRectangle){
-		targetImage = [imageHistory objectAtIndex:[imageHistory count] -1];
+		if ([imageHistory count] == 0) {
+            targetImage = nil;
+        } else {
+            targetImage = [imageHistory objectAtIndex:[imageHistory count] -1];
+        }
 	}
 	[targetImage drawInRect:CGRectMake(0, 0, view.frame.size.width, view.frame.size.height)];
     if (drawMode == DrawModeErase) {
@@ -231,8 +235,9 @@
 {
     lastWidth = -1;
 	[super touchesBegan:touches withEvent:event];
-	[imageHistory addObject:[self.imageView.image retain]];
-	
+    if (self.imageView.image != nil) {
+        [imageHistory addObject:[self.imageView.image retain]];
+	}
 	UITouch *touch = [touches anyObject];
 	lastPoint = [touch locationInView:[self imageView]];
 	pointsArray = [[NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:lastPoint]] retain];
