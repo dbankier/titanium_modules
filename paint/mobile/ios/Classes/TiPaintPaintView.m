@@ -199,7 +199,7 @@
 	UIView *view = [self imageView];
 	UIGraphicsBeginImageContext(view.frame.size);
 	UIImage *targetImage = drawImage.image;
-	if (drawMode == DrawModeStraightLine || drawMode == DrawModeCircle || drawMode == DrawModeRectangle){
+	if ((drawMode == DrawModeStraightLine || drawMode == DrawModeCircle || drawMode == DrawModeRectangle) && targetImage != nil){
 		if ([imageHistory count] == 0) {
             targetImage = nil;
         } else {
@@ -323,6 +323,9 @@
 	{
 		self.imageView.image = [imageHistory objectAtIndex:[imageHistory count] -1];
         [imageHistory removeObjectAtIndex:[imageHistory count] -1];
+	} else if (drawImage!=nil)
+	{
+		drawImage.image = nil;
 	}
 }
 
