@@ -6,6 +6,7 @@
  */
 #import "TiPaintPaintView.h"
 #import "TiUtils.h"
+#import "TiBlob.h"
 
 
 @implementation TiPaintPaintView
@@ -108,8 +109,6 @@
     
     CGContextBeginPath(UIGraphicsGetCurrentContext());
     CGFloat x0,y0,x1,y1,x2,y2,x3,y3;
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path,NULL,[[pointsArray objectAtIndex:0] CGPointValue].x,[[pointsArray objectAtIndex:0] CGPointValue].y);
     
     int pLength = [pointsArray count];
     
@@ -157,13 +156,16 @@
         double ctrl2_x = xm2 + (xc2 - xm2) * smooth_value + x2 - xm2;
         double ctrl2_y = ym2 + (yc2 - ym2) * smooth_value + y2 - ym2;	
         
-        CGPathMoveToPoint(path,NULL,x1,y1);
-        CGPathAddCurveToPoint(path,NULL,ctrl1_x,ctrl1_y,ctrl2_x,ctrl2_y, x2,y2);
-        CGPathAddLineToPoint(path,NULL,x2,y2);
+        CGContextMoveToPoint(UIGraphicsGetCurrentContext(),x1,y1);
+        if (len2 < 2) {
+            CGContextAddLineToPoint(UIGraphicsGetCurrentContext(),x2,y2);
+        } else {
+            CGContextAddCurveToPoint(UIGraphicsGetCurrentContext(),ctrl1_x,ctrl1_y,ctrl2_x,ctrl2_y, x2,y2);
+        }
         
         
-        double step_limit = 0.4; // limit for dynamic width step
-        double width_limit = 0.6; // smallest percentage change in width
+        double step_limit = 0.05; // smallest percentage change in width
+        double width_limit = 0.25; // limit for dynamic width step
         
         double width = strokeWidth * (1 - ((len1 -10)/40 * (1-width_limit)));
         if (lastWidth > -1) {
@@ -188,9 +190,8 @@
             CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0, 0.0), 2.0, strokeColor);
         }
         lastWidth = width;
-
+        
     }
-	CGContextAddPath(UIGraphicsGetCurrentContext(), path);
 	CGContextSetShouldAntialias(UIGraphicsGetCurrentContext(),YES); 
 }	
 
@@ -200,7 +201,7 @@
 	UIGraphicsBeginImageContext(view.frame.size);
 	UIImage *targetImage = drawImage.image;
 	if ((drawMode == DrawModeStraightLine || drawMode == DrawModeCircle || drawMode == DrawModeRectangle) && targetImage != nil){
-		if ([imageHistory count] == 0) {
+		if ([imageHistory count] == 0 || [imageHistory objectAtIndex:[imageHistory count] -1] == [NSNull null] ) {
             targetImage = nil;
         } else {
             targetImage = [imageHistory objectAtIndex:[imageHistory count] -1];
@@ -306,13 +307,17 @@
 
 - (void)setImage_:(id)value
 {
-	UIImage *image = value==nil ? nil : [TiUtils image:value proxy:(TiProxy*)self.proxy];
-	if (image!=nil)
-	{
+	UIImage *image = nil; 
+    
+    if ([value isKindOfClass: [TiBlob class]]) {
+        image = [(TiBlob*)value image];
+    } else if ([value isKindOfClass:[NSString class]]) {
+        image = [TiUtils image:value proxy:(TiProxy*)self.proxy];
+    }
+    
+	if (image!=nil){
 		self.imageView.image = image;
-	}
-	else
-	{
+	} else {
 		self.imageView.image=nil;
 	}
 }
@@ -321,7 +326,12 @@
 {
     if ([imageHistory count] > 0)
 	{
-		self.imageView.image = [imageHistory objectAtIndex:[imageHistory count] -1];
+        if ([imageHistory objectAtIndex:[imageHistory count] -1] == [NSNull null]) {
+            drawImage.image = nil;
+        } else {
+            self.imageView.image = [imageHistory objectAtIndex:[imageHistory count] -1];
+            CGImageRelease([imageHistory objectAtIndex:[imageHistory count] -1]);
+        }
         [imageHistory removeObjectAtIndex:[imageHistory count] -1];
 	} else if (drawImage!=nil)
 	{
@@ -335,6 +345,7 @@
 {
 	if (drawImage!=nil)
 	{
+        [imageHistory addObject:[NSNull null]];
 		drawImage.image = nil;
 	}
 }

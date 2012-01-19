@@ -6,9 +6,14 @@ var paintView = Ti.Paint.createPaintView({
     // strokeWidth (float), strokeColor (string), strokeAlpha (int, 0-255)
     strokeColor:'#0f0', strokeAlpha:255, strokeWidth:10,
     eraseMode:false,
-    image: 'Default.png'
+    image: 'twitter.png'
 });
 win.add(paintView);
+
+setTimeout(function () {
+    var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "Default.png");
+    paintView.image = f.blob;
+},1000);
 
 var buttonStrokeWidth = Ti.UI.createButton({ left:10, bottom:10, right:10, height:30, title:'Decrease Stroke Width' });
 buttonStrokeWidth.addEventListener('click', function(e) {
