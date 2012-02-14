@@ -198,7 +198,11 @@
 - (void)drawAt:(CGPoint)currentPoint endDraw:(bool)endDraw
 {
 	UIView *view = [self imageView];
-	UIGraphicsBeginImageContext(view.frame.size);
+    if (UIGraphicsBeginImageContextWithOptions != NULL) {
+        UIGraphicsBeginImageContextWithOptions(view.frame.size, NO, 0.0);
+    } else {
+        UIGraphicsBeginImageContext(view.frame.size);
+    }
 	UIImage *targetImage = drawImage.image;
 	if ((drawMode == DrawModeStraightLine || drawMode == DrawModeCircle || drawMode == DrawModeRectangle) && targetImage != nil){
 		if ([imageHistory count] == 0 || [imageHistory objectAtIndex:[imageHistory count] -1] == [NSNull null] ) {
